@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class Player : MonoBehaviour
     private float dyTemp;
 
     private int coins;
+    private int lives = 3;
 
     private bool canDoubleJump = false;
 
@@ -17,16 +19,21 @@ public class Player : MonoBehaviour
 
     private UIManager uiManager;
 
+    [SerializeField]
+    private GameObject startPosition;
+
     // Start is called before the first frame update
     void Start()
     {
         controller = GetComponent<CharacterController>();
 
         uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
+
+        uiManager.LivesDisplay(lives);
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         float horizontalInput = Input.GetAxis("Horizontal");
         Vector3 direction = new Vector3(horizontalInput, 0, 0);
@@ -54,6 +61,17 @@ public class Player : MonoBehaviour
         direction.y = dyTemp;
 
         controller.Move(direction  * Time.deltaTime);
+
+        if(transform.position.y < -10f)
+        {
+            lives--;
+            uiManager.LivesDisplay(lives);
+            transform.position = startPosition.transform.position;
+            if(lives < 1)
+            {
+                SceneManager.LoadScene(0);
+            }
+        }
     }
 
     public void AddCoin()
